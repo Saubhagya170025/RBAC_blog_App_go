@@ -1,4 +1,6 @@
-server/
+ ```
+ 
+ server/
 ├── main.go
 ├── go.mod
 ├── go.sum
@@ -39,3 +41,5 @@ server/
     ├── 003_create_users_table.sql
     ├── 004_create_categories_table.sql
     └── 005_create_blogs_table.sql
+
+    ```
