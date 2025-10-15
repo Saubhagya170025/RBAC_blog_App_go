@@ -6,9 +6,11 @@ import (
 
 	"github.com/Saubhagya170025/rbac-blog-app/database"
 	"github.com/Saubhagya170025/rbac-blog-app/routes"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	// "github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v3"
 	_ "github.com/lib/pq"
+	"github.com/Saubhagya170025/rbac-blog-app/config"
+	
 )
 
 const (
@@ -21,6 +23,7 @@ const (
 
 func main() {
 
+	cfg := config.LoadConfig()
 	// ----------------------------Databse Connection ---------------------------------That has to be placed in a separate file
 	// This is a simple example of connecting to a PostgreSQL database using Go's database/sql package.
 	// Make sure to import the pq driver with _ "github.com/lib/pq" to register it.
@@ -50,13 +53,13 @@ func main() {
 	app := fiber.New()
 
 	// Adding CORS middleware with specific origin
-	app.Use(cors.New(cors.Config{
-		AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-		AllowHeaders:     "Content-Type,Authorization,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Expose-Headers,Access-Control-Max-Age,Access-Control-Allow-Credentials",
-		AllowCredentials: true,
-	}))
+	// app.Use(cors.New(cors.Config{
+	// 	AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+	// 	AllowHeaders:     "Content-Type,Authorization,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Expose-Headers,Access-Control-Max-Age,Access-Control-Allow-Credentials",
+	// 	AllowCredentials: true,
+	// }))
 	// Setup routes
-	routes.SetupRoutes(app, db)
+	routes.SetupRoutes(app, db, cfg)
 	// -----------------------Starting the server----------------------------------------------
 
 	log.Printf("Server started on 0.0.0.0:8080")
