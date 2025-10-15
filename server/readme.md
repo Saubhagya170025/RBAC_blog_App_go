@@ -1,4 +1,4 @@
-
+```
 // Project Structure
 /*
 server/
@@ -37,3 +37,5 @@ server/
     ├── 004_create_categories_table.sql
     └── 005_create_blogs_table.sql
 */
+
+```
