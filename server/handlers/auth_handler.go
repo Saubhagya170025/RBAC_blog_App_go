@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/Saubhagya170025/rbac-blog-app/config"
 	"github.com/Saubhagya170025/rbac-blog-app/database/repository"
@@ -190,8 +191,49 @@ func LogoutHandler(db *sql.DB) fiber.Handler {
 			})
 		}
 
+		// Expire the access and refresh token cookies server-side so the browser removes them
+		// Use a past expiration time to ensure deletion. Match the Path/SameSite/Secure/HTTPOnly flags used when setting.
+		expired := time.Now().Add(-1 * time.Hour)
+		c.Cookie(&fiber.Cookie{
+			Name:     "access_token",
+			Value:    "",
+			HTTPOnly: true,
+			Secure:   false,
+			SameSite: "Lax",
+			Path:     "/",
+			Expires:  expired,
+		})
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh_token",
+			Value:    "",
+			HTTPOnly: true,
+			Secure:   false,
+			SameSite: "Lax",
+			Path:     "/",
+			Expires:  expired,
+		})
+
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Logout successful",
+		})
+	}
+}
+
+// ValidateHandler checks if the user is authenticated
+func ValidateHandler(db *sql.DB) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		// AuthMiddleware has already run and populated Locals("user_id") etc.
+		userID := c.Locals("user_id")
+		email := c.Locals("email")
+		roleID := c.Locals("role_id")
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"authenticated": true,
+			"user": fiber.Map{
+				"user_id": userID,
+				"email":   email,
+				"role_id": roleID,
+			},
 		})
 	}
 }

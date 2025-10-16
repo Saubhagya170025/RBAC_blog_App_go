@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { redirect } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 // Menu items.
@@ -34,21 +34,44 @@ const items = [
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/auth';
 
 export function AppSidebar() {
+  const navigate = useNavigate();
   async function handleLogout() {
     try {
       const res = await axios.post(`${API}/logout`, {}, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
-      console.log("logout button clicked")
+      console.log("logout button clicked", res)
       if (res.status !== 200) {
         throw new Error('Logout failed');
       }
-      // Handle successful logout (e.g., redirect to login)
+      // On success, clear any client-side tokens/localStorage
+      try {
+        // If you store any non-HTTP-only tokens in localStorage/sessionStorage, remove them here
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      } catch (e) {
+        // ignore
+      }
+
+      // Clear any non-HTTP-only cookies (httpOnly cookies cannot be cleared from JS; server will expire them)
+      try {
+        document.cookie.split(';').forEach(function(c) { 
+          const name = c.split('=')[0].trim();
+          // set cookie with past expiry for the current path
+          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        });
+      } catch (e) {
+        // ignore
+      }
+
+      // Finally navigate to the public route
+      navigate('/');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout error:', error);  
+      // even on error, navigate to login
+      navigate('/');
     }
-    redirect('/home');
   }
   return (
     <Sidebar>

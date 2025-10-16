@@ -42,6 +42,7 @@ func SetupRoutes(app *fiber.App, db *sql.DB, cfg *config.Config) {
 	protectedAuth := protected.Group("/auth")
 	{
 		protectedAuth.Post("/logout", handlers.LogoutHandler(db))
+		protectedAuth.Get("/validate", handlers.ValidateHandler(db))
 	}
 
 	// User Routes (Protected)
