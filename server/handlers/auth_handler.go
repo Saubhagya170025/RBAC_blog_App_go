@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+
 	"github.com/Saubhagya170025/rbac-blog-app/config"
 	"github.com/Saubhagya170025/rbac-blog-app/database/repository"
 	"github.com/Saubhagya170025/rbac-blog-app/utils"
@@ -75,6 +76,26 @@ func LoginHandler(db *sql.DB, cfg *config.Config) fiber.Handler {
 			})
 		}
 
+		// Set cookies
+		// NOTE: Secure must be false during local development (HTTP). Set to true in production.
+		c.Cookie(&fiber.Cookie{
+			Name:     "access_token",
+			Value:    accessToken,
+			HTTPOnly: true,
+			Secure:   false,
+			SameSite: "Lax",
+			Path:     "/",
+		})
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			HTTPOnly: true,
+			Secure:   false,
+			SameSite: "Lax",
+			Path:     "/",
+		})
+
+		// Return JSON response
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":       "Login successful",
 			"access_token":  accessToken,

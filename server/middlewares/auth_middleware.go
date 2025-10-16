@@ -12,22 +12,23 @@ import (
 func AuthMiddleware(cfg *config.Config) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		// Get Authorization header
+		// Prefer Authorization header, fall back to access_token cookie (HTTPOnly)
 		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Missing authorization header",
-			})
+		var tokenString string
+		if authHeader != "" {
+			// Check Bearer format
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
+			}
+			tokenString = parts[1]
+		} else {
+			// Try cookie
+			tokenString = c.Cookies("access_token")
+			if tokenString == "" {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization token"})
+			}
 		}
-
-		// Check if it's a Bearer token
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid authorization header format",
-			})
-		}
-
-		tokenString := parts[1]
 
 		// Validate token
 		claims, err := utils.ValidateToken(tokenString, cfg.JWTAccessSecret)

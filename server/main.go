@@ -6,7 +6,7 @@ import (
 
 	"github.com/Saubhagya170025/rbac-blog-app/database"
 	"github.com/Saubhagya170025/rbac-blog-app/routes"
-	// "github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3"
 	_ "github.com/lib/pq"
 	"github.com/Saubhagya170025/rbac-blog-app/config"
@@ -53,11 +53,12 @@ func main() {
 	app := fiber.New()
 
 	// Adding CORS middleware with specific origin
-	// app.Use(cors.New(cors.Config{
-	// 	AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-	// 	AllowHeaders:     "Content-Type,Authorization,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Expose-Headers,Access-Control-Max-Age,Access-Control-Allow-Credentials",
-	// 	AllowCredentials: true,
-	// }))
+	app.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"http://localhost:5173"}, // must be a slice
+    AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+    AllowCredentials: true,
+}))
 	// Setup routes
 	routes.SetupRoutes(app, db, cfg)
 	// -----------------------Starting the server----------------------------------------------
